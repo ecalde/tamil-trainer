@@ -257,7 +257,12 @@ function LessonSession({
         <span>{lesson.titleEn}</span>
       </div>
       <Card>
-        <ExerciseRunner exercise={current} learnerLocale={learnerLocale} onComplete={onCompleteExercise} />
+        <ExerciseRunner
+          key={current.id}
+          exercise={current}
+          learnerLocale={learnerLocale}
+          onComplete={onCompleteExercise}
+        />
       </Card>
     </div>
   )

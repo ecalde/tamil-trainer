@@ -269,6 +269,8 @@ function WordMatchView({
 }) {
   const [leftSel, setLeftSel] = useState<string | null>(null)
   const [matched, setMatched] = useState<Record<string, true>>({})
+  /** Wrong meaning chosen (highlights that button in amber; correct matches use `matched` emerald). */
+  const [wrongMeaningTap, setWrongMeaningTap] = useState<Record<string, true>>({})
 
   const rights = useMemo(() => shufflePairs(exercise.pairs), [exercise.pairs])
   const total = exercise.pairs.length
@@ -287,51 +289,83 @@ function WordMatchView({
       </p>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          {exercise.pairs.map((p) => (
-            <button
-              key={p.itemId}
-              type="button"
-              disabled={locked || !!matched[p.itemId]}
-              onClick={() => setLeftSel(p.itemId)}
-              className={cn(
-                'w-full rounded-xl border px-3 py-2 text-left font-[family-name:var(--font-tamil)] text-lg',
-                leftSel === p.itemId
-                  ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]'
-                  : 'border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-950',
-                matched[p.itemId] && 'opacity-40',
-              )}
-            >
-              {p.tamil}
-              <div className="text-xs font-sans text-zinc-500">{p.transliteration}</div>
-            </button>
-          ))}
+          {exercise.pairs.map((p) => {
+            const isMatched = !!matched[p.itemId]
+            const isLeftActive = leftSel === p.itemId && !isMatched
+            return (
+              <button
+                key={p.itemId}
+                type="button"
+                disabled={locked || isMatched}
+                onClick={() => setLeftSel(p.itemId)}
+                className={cn(
+                  'w-full rounded-xl border-2 px-3 py-2 text-left font-[family-name:var(--font-tamil)] text-lg transition active:scale-[0.99]',
+                  isMatched &&
+                    'border-emerald-500/80 bg-emerald-950/40 text-emerald-50 ring-1 ring-emerald-500/35 dark:bg-emerald-950/35',
+                  !isMatched &&
+                    isLeftActive &&
+                    'border-[var(--color-accent)] bg-[var(--color-accent)] text-white shadow-md',
+                  !isMatched &&
+                    !isLeftActive &&
+                    'border-zinc-200 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-50',
+                )}
+              >
+                {p.tamil}
+                <div
+                  className={cn(
+                    'text-xs font-sans',
+                    isMatched && 'text-emerald-200/90',
+                    !isMatched && isLeftActive && 'text-white/90',
+                    !isMatched && !isLeftActive && 'text-zinc-500 dark:text-zinc-400',
+                  )}
+                >
+                  {p.transliteration}
+                </div>
+              </button>
+            )
+          })}
         </div>
         <div className="space-y-2">
-          {rights.map((p) => (
-            <button
-              key={`${p.itemId}-m`}
-              type="button"
-              disabled={locked || !!matched[p.itemId]}
-              onClick={() => {
-                if (!leftSel) return
-                if (leftSel === p.itemId) {
-                  setMatched((m): Record<string, true> => {
-                    const next: Record<string, true> = { ...m, [leftSel]: true }
-                    if (Object.keys(next).length === total) {
-                      queueMicrotask(() => onDone(true))
-                    }
-                    return next
-                  })
-                  setLeftSel(null)
-                } else {
-                  onDone(false)
-                }
-              }}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-left text-sm dark:border-zinc-700 dark:bg-zinc-950"
-            >
-              {p.meaning}
-            </button>
-          ))}
+          {rights.map((p) => {
+            const isMatched = !!matched[p.itemId]
+            const wrongTap = !!wrongMeaningTap[p.itemId]
+            return (
+              <button
+                key={`${p.itemId}-m`}
+                type="button"
+                disabled={locked || isMatched}
+                onClick={() => {
+                  if (!leftSel) return
+                  if (leftSel === p.itemId) {
+                    setMatched((m): Record<string, true> => {
+                      const next: Record<string, true> = { ...m, [leftSel]: true }
+                      if (Object.keys(next).length === total) {
+                        queueMicrotask(() => onDone(true))
+                      }
+                      return next
+                    })
+                    setLeftSel(null)
+                  } else {
+                    setWrongMeaningTap((t) => ({ ...t, [p.itemId]: true }))
+                    onDone(false)
+                  }
+                }}
+                className={cn(
+                  'w-full rounded-xl border-2 px-3 py-2 text-left text-sm font-medium transition active:scale-[0.99]',
+                  isMatched &&
+                    'border-emerald-400 bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-300/40 dark:border-emerald-500 dark:bg-emerald-700',
+                  !isMatched &&
+                    wrongTap &&
+                    'border-amber-400 bg-amber-500/15 text-amber-950 ring-1 ring-amber-400/50 dark:bg-amber-500/20 dark:text-amber-50 dark:ring-amber-400/40',
+                  !isMatched &&
+                    !wrongTap &&
+                    'border-zinc-200 bg-white text-zinc-900 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-900',
+                )}
+              >
+                {p.meaning}
+              </button>
+            )
+          })}
         </div>
       </div>
     </div>

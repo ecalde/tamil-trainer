@@ -30,10 +30,10 @@ export function AppShell() {
                 to={l.to}
                 className={({ isActive }) =>
                   cn(
-                    'rounded-lg px-2 py-1 transition',
+                    'rounded-lg px-2.5 py-1.5 text-sm font-medium transition',
                     isActive
-                      ? 'bg-[var(--color-accent-soft)] text-zinc-900 dark:text-zinc-50'
-                      : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800',
+                      ? 'bg-[var(--color-accent)] text-white shadow-sm dark:bg-[var(--color-accent)] dark:text-white'
+                      : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800',
                   )
                 }
                 end={l.to === '/'}

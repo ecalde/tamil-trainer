@@ -6,7 +6,6 @@
     "module": "esnext",
     "types": ["vite/client", "vitest/globals"],
     "skipLibCheck": true,
-    "ignoreDeprecations": "6.0",
     "strict": true,
     "noUncheckedIndexedAccess": true,
 
@@ -18,8 +17,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Paths */
-    "baseUrl": ".",
+    /* Paths (@/* → ./src/*); baseUrl omitted (deprecated in TS 6 — paths resolve from this config file). */
     "paths": {
       "@/*": ["./src/*"]
     },

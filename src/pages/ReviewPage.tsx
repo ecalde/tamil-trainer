@@ -5,12 +5,15 @@ import { getItemById, useProgressStore } from '@/stores/progressStore'
 
 export function ReviewPage() {
   const hydrated = useHydrate()
-  const due = useProgressStore((s) => s.getDueItemIds(30))
+  const words = useProgressStore((s) => s.words)
+  const getDueItemIds = useProgressStore((s) => s.getDueItemIds)
+  const due = getDueItemIds(30)
 
   if (!hydrated) return <p className="text-zinc-500">Loading…</p>
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+      <p className="sr-only">Tracked vocabulary entries: {words.size}</p>
       <div>
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold text-zinc-900 dark:text-zinc-50">
           Review queue

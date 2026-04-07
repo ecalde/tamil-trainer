@@ -5,12 +5,15 @@ import { getItemById, useProgressStore } from '@/stores/progressStore'
 
 export function HardWordsPage() {
   const hydrated = useHydrate()
-  const hard = useProgressStore((s) => s.getHardItemIds(30))
+  const words = useProgressStore((s) => s.words)
+  const getHardItemIds = useProgressStore((s) => s.getHardItemIds)
+  const hard = getHardItemIds(30)
 
   if (!hydrated) return <p className="text-zinc-500">Loading…</p>
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+      <p className="sr-only">Tracked vocabulary entries: {words.size}</p>
       <div>
         <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold text-zinc-900 dark:text-zinc-50">
           Hard words
