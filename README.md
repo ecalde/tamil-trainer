@@ -1,73 +1,73 @@
-# React + TypeScript + Vite
+# Tamil Trainer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A static, production-minded MVP for learning **spoken Tamil** as an English or Spanish speaker. The app emphasizes conversational usefulness, evidence-based practice (spaced repetition, retrieval, interleaving), unlimited retries, and honest pronunciation support (local audio when present; browser speech synthesis otherwise).
 
-Currently, two official plugins are available:
+There is **no backend** in this MVP: lessons and vocabulary ship with the app; progress is stored locally in the browser (IndexedDB via Dexie).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Architecture (brief)
 
-## React Compiler
+- **React + TypeScript + Vite** for a fast static bundle suitable for GitHub Pages.
+- **Tailwind CSS v4** (`@tailwindcss/vite`) for styling; small reusable UI primitives (`src/components/ui`).
+- **Zustand** for client state; **Dexie** for durable IndexedDB persistence (word progress, streak, settings, lesson completion).
+- **Zod** validates curriculum data at load time (`src/content`).
+- **Pure, testable modules** for scheduling and scoring (`src/lib/srs`).
+- **React Router** with `basename` set from Vite’s `import.meta.env.BASE_URL` so subpath deploys work.
+- **Exercise engine** builds mixed sessions from lesson items + optional review pulls (`src/lib/session`).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Future features (Tamil script writing, speech recognition, accounts, cloud sync) should remain behind explicit modules and **never** embed secrets or privileged APIs in the static bundle.
 
-## Expanding the ESLint configuration
+## Local development
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Requirements: Node 20+ (recommended).
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open the printed local URL (typically `http://localhost:5173`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Quality checks
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run lint
+npm run test:run
+npm run build
+npm run audit
 ```
+
+## GitHub Pages (static deploy)
+
+1. In `vite.config.ts`, `base` defaults to `'/'`. For a **project site** at `https://<user>.github.io/<repo>/`, set the base to your repository name at build time:
+
+   ```bash
+   VITE_BASE_URL=/your-repo-name/ npm run build
+   ```
+
+   Or use Vite’s CLI:
+
+   ```bash
+   npx vite build --base=/your-repo-name/
+   ```
+
+2. Upload the `dist/` folder to the `gh-pages` branch, or use **GitHub Actions** / **peaceiris/actions-gh-pages** with `publish_dir: dist` and the same `base` as your Pages URL.
+
+3. In the repo **Settings → Pages**, choose the branch/folder that serves `dist`.
+
+Because this is a client-side SPA, the hosting path must match the `base` you build with so assets and `import.meta.env.BASE_URL` line up.
+
+## Privacy (MVP)
+
+All learning progress and preferences stay **in this browser** (IndexedDB). Nothing is sent to a server by this app. See `SECURITY.md` for assumptions and hardening notes.
+
+## Documentation
+
+- `PROJECT_RULES.md` — product and UX guardrails for contributors.
+- `docs/content-schema.md` — vocabulary and curriculum fields.
+- `docs/curriculum-roadmap.md` — staged roadmap toward a larger conversational corpus.
+- `docs/learning-method.md` — pedagogy and SRS behavior.
+- `SECURITY.md` — threat model and client-only constraints.
+
+## License
+
+Private project (`"private": true` in `package.json`). Adjust as needed.
